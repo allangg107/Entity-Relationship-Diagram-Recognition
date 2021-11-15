@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31829.152
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CSS487ERDiagramRecognition", "CSS487ERDiagramRecognition\CSS487ERDiagramRecognition.vcxproj", "{2A63E340-0D78-4472-A6F7-1016637C4FDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Debug|x64.ActiveCfg = Debug|x64
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Debug|x64.Build.0 = Debug|x64
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Debug|x86.ActiveCfg = Debug|Win32
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Debug|x86.Build.0 = Debug|Win32
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Release|x64.ActiveCfg = Release|x64
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Release|x64.Build.0 = Release|x64
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Release|x86.ActiveCfg = Release|Win32
+		{2A63E340-0D78-4472-A6F7-1016637C4FDE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C311465D-0849-4F38-BA96-4098C4C89A31}
+	EndGlobalSection
+EndGlobal
