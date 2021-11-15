@@ -145,6 +145,11 @@
   <ItemGroup>
     <ClCompile Include="RecognizeERDiagram.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="circle.png" />
+    <Image Include="rectangle.png" />
+    <Image Include="triangle.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
