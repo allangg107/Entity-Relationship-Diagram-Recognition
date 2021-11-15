@@ -7,7 +7,7 @@ using namespace cv;
 
 int main()
 {
-	Mat testImage = imread("rectangle.png");
+	Mat testImage = imread("rectangle&triangle&circle.png");
 
 	Mat testImageGray;
 	cvtColor(testImage, testImageGray, COLOR_BGR2GRAY);
