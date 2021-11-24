@@ -5,8 +5,27 @@
 using namespace std;
 using namespace cv;
 
+
+
 int main()
 {
+	//Tommy first implementation
+	Mat paintEr = imread("painter.jpg");
+	Mat hdEr = imread("hdEr.jpg");
+	
+	//Converts to gray scale image
+	Mat imageInGray;
+	cvtColor(paintEr, imageInGray, COLOR_BGR2GRAY);
+
+	//Make a threshold
+	Mat thresh;
+	threshold(imageInGray, thresh, 150, 255, THRESH_BINARY);
+	imshow("Binary image", thresh);
+	waitKey(0);
+	destroyAllWindows();
+
+	/*
+	//Allan's inital code to test things
 	Mat testImage = imread("rectangle&triangle&circle.png");
 
 	Mat testImageGray;
@@ -26,4 +45,5 @@ int main()
 
 	waitKey(0);
 	destroyAllWindows();
+	*/
 }
