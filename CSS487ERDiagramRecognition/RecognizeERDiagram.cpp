@@ -10,19 +10,29 @@ using namespace cv;
 int main()
 {
 	//Tommy first implementation
-	Mat paintEr = imread("painter.jpg");
-	Mat hdEr = imread("hdEr.jpg");
+	Mat testImage = imread("paintTest2.png");
 	
 	//Converts to gray scale image
 	Mat imageInGray;
-	cvtColor(paintEr, imageInGray, COLOR_BGR2GRAY);
+	cvtColor(testImage, imageInGray, COLOR_BGR2GRAY);
 
 	//Make a threshold
-	Mat thresh;
-	threshold(imageInGray, thresh, 150, 255, THRESH_BINARY);
-	imshow("Binary image", thresh);
+	Mat threshImage;
+	threshold(imageInGray, threshImage, 200, 255, THRESH_BINARY);
+	imshow("Binary image", threshImage);
 	waitKey(0);
 	destroyAllWindows();
+
+	//Finding countours
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(threshImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+	Mat image_copy = testImage.clone();
+		drawContours(image_copy, contours, -1, Scalar(0, 255, 0), 2);
+		imshow("None approximation", image_copy);
+		waitKey(0);
+		destroyAllWindows();
+
 
 	/*
 	//Allan's inital code to test things
