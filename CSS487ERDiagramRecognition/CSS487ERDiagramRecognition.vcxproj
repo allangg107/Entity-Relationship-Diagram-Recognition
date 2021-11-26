@@ -147,7 +147,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="circle.png" />
+    <Image Include="nestedrectangle.png" />
     <Image Include="rectangle.png" />
+    <Image Include="threerectangles.png" />
     <Image Include="triangle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

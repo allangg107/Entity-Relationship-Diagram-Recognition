@@ -29,5 +29,11 @@
     <Image Include="triangle.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="nestedrectangle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="threerectangles.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
