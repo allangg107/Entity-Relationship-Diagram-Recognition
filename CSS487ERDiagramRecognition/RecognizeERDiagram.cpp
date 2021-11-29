@@ -15,6 +15,31 @@ static double angle(Point pt1, Point pt2, Point pt0)
 	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
 }
 
+//helper method checks if shape is on the border
+bool contourTouchesBorder(const std::vector<cv::Point>& contour, const cv::Size& imageSize)
+{
+	cv::Rect shape = cv::boundingRect(contour);
+
+	bool retval = false;
+
+	int xMin, xMax, yMin, yMax;
+
+	xMin = 0;
+	yMin = 0;
+	xMax = imageSize.width - 1;
+	yMax = imageSize.height - 1;
+
+	//checks if x or y is at the border
+	int shapeEndX = shape.x + shape.width - 1;
+	int shapeEndY = shape.y + shape.height - 1;
+	if (shape.x <= xMin || shape.y <= yMin ||	shapeEndX >= xMax ||shapeEndY >= yMax)
+	{
+		retval = true;
+	}
+
+	return retval;
+}
+
 int main()
 {
 	/*
@@ -45,7 +70,10 @@ int main()
 
 	
 	//Allan's code to test things
-	Mat testImage = imread("rectangle&triangle&circle.png");
+	//Mat testImage = imread("rectangle&triangle&circle.png");
+	
+	//paint test
+	Mat testImage = imread("paintTest1.png");
 
 	Mat testImageGray;
 	cvtColor(testImage, testImageGray, COLOR_BGR2GRAY);
