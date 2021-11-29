@@ -88,25 +88,33 @@ int main()
 	vector<vector<Point> > squares;	
 	vector<Point> approx;
 
-	for (size_t i = 0; i < contours.size(); i++)
-	{
-		approxPolyDP(Mat(contours[i]), approx,
-			arcLength(Mat(contours[i]), true) * 0.02, true);
+	for (size_t i = 0; i < contours.size(); i++){
+		// checks if contour is touching border
+		if (contourTouchesBorder(contours[i], testImage.size()) == false) {
+				approxPolyDP(Mat(contours[i]), approx,
+				arcLength(Mat(contours[i]), true) * 0.02, true);
 
-		if (approx.size() == 4 &&
-			fabs(contourArea(Mat(approx))) > 1000 &&
-			isContourConvex(Mat(approx)))
-		{
-			double maxCosine = 0;
-
-			for (int j = 2; j < 5; j++)
+			if (approx.size() == 4 &&
+				fabs(contourArea(Mat(approx))) > 1000 &&
+				isContourConvex(Mat(approx)))
 			{
-				double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
-				maxCosine = MAX(maxCosine, cosine);
-			}
+				double maxCosine = 0;
 
-			if (maxCosine < 0.3)
-				squares.push_back(approx);
+				for (int j = 2; j < 5; j++)
+				{
+					double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
+					maxCosine = MAX(maxCosine, cosine);
+				}
+
+
+				if (maxCosine < 0.3) {
+					squares.push_back(approx);
+				}
+			}
+		}
+		else {
+			//delete contour if contour touches border
+			contours.erase(contours.begin()+i);
 		}
 	}
 
