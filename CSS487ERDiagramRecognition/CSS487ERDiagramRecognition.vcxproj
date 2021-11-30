@@ -146,6 +146,7 @@
     <ClCompile Include="RecognizeERDiagram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Desktop\paintTest2.png" />
     <Image Include="..\..\..\..\OneDrive\Documents\paintTest1.png" />
     <Image Include="circle.png" />
     <Image Include="nestedrectangle.png" />

@@ -40,40 +40,64 @@ bool contourTouchesBorder(const std::vector<cv::Point>& contour, const cv::Size&
 	return retval;
 }
 
+void detectShapes(vector<vector<Point>>& contours, const Mat& testImage) {
+	vector<vector<Point>> squares;
+	vector<vector<Point>> rectangles;
+	vector<vector<Point>> circles;
+	vector<Point> approx;
+
+	for (size_t i = 0; i < contours.size(); i++) {
+		// checks if contour is touching border
+		if (contourTouchesBorder(contours[i], testImage.size()) == false) {
+			approxPolyDP(Mat(contours[i]), approx,
+				arcLength(Mat(contours[i]), true) * 0.02, true);
+
+			//Detect difference between square and rectangle
+			if (approx.size() == 4 &&
+				fabs(contourArea(Mat(approx))) > 1000 &&
+				isContourConvex(Mat(approx)))
+			{
+				double maxCosine = 0;
+
+				//for (int j = 2; j < 5; j++)
+				//{
+				//	double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
+				//	maxCosine = MAX(maxCosine, cosine);
+				//}
+
+				Rect r = boundingRect(contours[i]);
+				double ratio = abs(1 - (double)r.width / r.height);
+				if (ratio <= 0.2) {
+					//Detects its a square
+					squares.push_back(approx);
+				}
+				else {
+					//Detects its a rectangle
+					rectangles.push_back(approx);
+				}
+			}
+			//Detects that it is a circle/oval
+			else if(approx.size() > 6) {
+				circles.push_back(approx);
+			}
+		}
+		else {
+			//delete contour if contour touches border
+			contours.erase(contours.begin() + i);
+		}
+	}
+	cout << "\nNumber of squares: " << squares.size() << endl;
+	cout << "\nNumber of rectangles: " << rectangles.size() << endl;
+	cout << "\nNumber of circles: " << circles.size() << endl;
+}
+
 int main()
 {
-	/*
-	//Tommy's code to test things
-	Mat testImage = imread("paintTest2.png");
-	
-	//Converts to gray scale image
-	Mat imageInGray;
-	cvtColor(testImage, imageInGray, COLOR_BGR2GRAY);
-
-	//Make a threshold
-	Mat threshImage;
-	threshold(imageInGray, threshImage, 200, 255, THRESH_BINARY);
-	imshow("Binary image", threshImage);
-	waitKey(0);
-	destroyAllWindows();
-
-	//Finding countours
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(threshImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
-	Mat image_copy = testImage.clone();
-		drawContours(image_copy, contours, -1, Scalar(0, 255, 0), 2);
-		imshow("None approximation", image_copy);
-		waitKey(0);
-		destroyAllWindows();
-	*/
-
-	
 	//Allan's code to test things
 	//Mat testImage = imread("rectangle&triangle&circle.png");
 	
 	//paint test
-	Mat testImage = imread("paintTest1.png");
+	Mat testImage = imread("paintTest3BadInput.png");
 
 	Mat testImageGray;
 	cvtColor(testImage, testImageGray, COLOR_BGR2GRAY);
@@ -85,38 +109,8 @@ int main()
 	vector<Vec4i> hierarchy;
 	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
-	vector<vector<Point> > squares;	
-	vector<Point> approx;
-
-	for (size_t i = 0; i < contours.size(); i++){
-		// checks if contour is touching border
-		if (contourTouchesBorder(contours[i], testImage.size()) == false) {
-				approxPolyDP(Mat(contours[i]), approx,
-				arcLength(Mat(contours[i]), true) * 0.02, true);
-
-			if (approx.size() == 4 &&
-				fabs(contourArea(Mat(approx))) > 1000 &&
-				isContourConvex(Mat(approx)))
-			{
-				double maxCosine = 0;
-
-				for (int j = 2; j < 5; j++)
-				{
-					double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
-					maxCosine = MAX(maxCosine, cosine);
-				}
-
-
-				if (maxCosine < 0.3) {
-					squares.push_back(approx);
-				}
-			}
-		}
-		else {
-			//delete contour if contour touches border
-			contours.erase(contours.begin()+i);
-		}
-	}
+	//Detects shapes
+	detectShapes(contours, testImage);
 
 	Mat testImageCopy = testImage.clone();
 	drawContours(testImageCopy, contours, -1, Scalar(120, 0, 120), 2);
@@ -124,7 +118,7 @@ int main()
 	imshow("Binary Image", thresh);
 	imshow("None approximation", testImageCopy);
 
-	cout << "\nNumber of rectangles: " << squares.size() << endl;
+	//cout << "\nNumber of rectangles: " << squares.size() << endl;
 
 	waitKey(0);
 	destroyAllWindows();
