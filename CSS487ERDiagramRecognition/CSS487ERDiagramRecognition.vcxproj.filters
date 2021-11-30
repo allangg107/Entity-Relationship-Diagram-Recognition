@@ -41,5 +41,8 @@
     <Image Include="..\..\..\..\Desktop\paintTest2.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="paintTest3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
