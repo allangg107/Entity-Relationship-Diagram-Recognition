@@ -1,49 +1,19 @@
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <iostream>
-using namespace std;
-using namespace cv;
+#include "RecognizeERDiagram.h"
 
-static double angle(const Point pt1, const Point pt2, const Point pt0)
+void RecognizeERDiagram::recognizeDiagram()
 {
-	double dx1 = (double)pt1.x - pt0.x;
-	double dy1 = (double)pt1.y - pt0.y;
-	double dx2 = (double)pt2.x - pt0.x;
-	double dy2 = (double)pt2.y - pt0.y;
-	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+	Mat grayImage;
+	cvtColor(image, grayImage, COLOR_BGR2GRAY);
+
+	Mat thresh;
+	threshold(grayImage, thresh, 150, 255, THRESH_BINARY);
+
+	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+
+	detectShapes();
 }
 
-//helper method checks if shape is on the border
-bool contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
-{
-	cv::Rect shape = cv::boundingRect(contour);
-
-	bool touchesBorder = false;
-
-	int xMin, xMax, yMin, yMax;
-
-	xMin = 0;
-	yMin = 0;
-	xMax = imageSize.width - 1;
-	yMax = imageSize.height - 1;
-
-	//checks if x or y is at the border
-	int shapeEndX = shape.x + shape.width - 1;
-	int shapeEndY = shape.y + shape.height - 1;
-	if (shape.x <= xMin || shape.y <= yMin ||	shapeEndX >= xMax ||shapeEndY >= yMax)
-	{
-		touchesBorder = true;
-	}
-
-	return touchesBorder;
-}
-
-void detectShapes(vector<vector<Point>>& contours, const Mat& image) {
-	vector<vector<Point>> squares;
-	vector<vector<Point>> rectangles;
-	vector<vector<Point>> circles;
+void RecognizeERDiagram::detectShapes() {
 	vector<Point> approx;
 
 	for (size_t i = 0; i < contours.size(); i++) {
@@ -77,7 +47,7 @@ void detectShapes(vector<vector<Point>>& contours, const Mat& image) {
 				}
 			}
 			//Detects that it is a circle/oval
-			else if(approx.size() > 6) {
+			else if (approx.size() > 6) {
 				circles.push_back(approx);
 			}
 		}
@@ -86,46 +56,80 @@ void detectShapes(vector<vector<Point>>& contours, const Mat& image) {
 			contours.erase(contours.begin() + i);
 		}
 	}
-	cout << "\nNumber of squares: " << squares.size() << endl;
-	cout << "\nNumber of rectangles: " << rectangles.size() << endl;
-	cout << "\nNumber of circles: " << circles.size() << endl;
-
-	Mat testImageCopy(image.size(), image.type());
-	drawContours(testImageCopy, contours, -1, Scalar(120, 0, 120), 2);
-	drawContours(testImageCopy, rectangles, -1, Scalar(255, 0, 0), 2);
-	drawContours(testImageCopy, squares, -1, Scalar(0, 255, 0), 2);
-	drawContours(testImageCopy, circles, -1, Scalar(0, 0, 255), 2);
-	imshow("Test", testImageCopy);
 }
 
-int main()
+//helper method checks if shape is on the border
+bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
 {
-	//Mat testImage = imread("rectangle&triangle&circle.png");
-	
-	//paint test
-	Mat testImage = imread("paintTest3.png");
+	cv::Rect shape = cv::boundingRect(contour);
 
-	Mat testImageGray;
-	cvtColor(testImage, testImageGray, COLOR_BGR2GRAY);
+	bool touchesBorder = false;
 
-	Mat thresh;
-	threshold(testImageGray, thresh, 150, 255, THRESH_BINARY);
+	int xMin, xMax, yMin, yMax;
 
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+	xMin = 0;
+	yMin = 0;
+	xMax = imageSize.width - 1;
+	yMax = imageSize.height - 1;
 
-	//Detects shapes
-	detectShapes(contours, testImage);
+	//checks if x or y is at the border
+	int shapeEndX = shape.x + shape.width - 1;
+	int shapeEndY = shape.y + shape.height - 1;
+	if (shape.x <= xMin || shape.y <= yMin || shapeEndX >= xMax || shapeEndY >= yMax)
+	{
+		touchesBorder = true;
+	}
 
-	Mat testImageCopy = testImage.clone();
-	drawContours(testImageCopy, contours, -1, Scalar(120, 0, 120), 2);
+	return touchesBorder;
+}
 
-	imshow("Original", testImage);
-	imshow("Contours", testImageCopy);
+double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
+{
+	double dx1 = (double)pt1.x - pt0.x;
+	double dy1 = (double)pt1.y - pt0.y;
+	double dx2 = (double)pt2.x - pt0.x;
+	double dy2 = (double)pt2.y - pt0.y;
+	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+}
 
-	//cout << "\nNumber of rectangles: " << squares.size() << endl;
+void RecognizeERDiagram::drawOriginalImage()
+{
+	imshow("Original Image", image);
+}
 
-	waitKey(0);
-	destroyAllWindows();
+void RecognizeERDiagram::drawAllContours()
+{
+	Mat imageCopy = image.clone();
+	drawContours(imageCopy, contours, -1, Scalar(120, 0, 120), 2);
+	imshow("All Contours", imageCopy);
+}
+
+void RecognizeERDiagram::drawColorCodedContours()
+{
+	Mat imageCopy(image.size(), image.type());
+	drawContours(imageCopy, contours, -1, Scalar(120, 0, 120), 2);
+	drawContours(imageCopy, rectangles, -1, Scalar(255, 0, 0), 2);
+	drawContours(imageCopy, squares, -1, Scalar(0, 255, 0), 2);
+	drawContours(imageCopy, circles, -1, Scalar(0, 0, 255), 2);
+	imshow("Color Coded Contours", imageCopy);
+}
+
+RecognizeERDiagram::RecognizeERDiagram(string fileName)
+{
+	image = imread(fileName);
+}
+
+int RecognizeERDiagram::getNumCircles()
+{
+	return circles.size();
+}
+
+int RecognizeERDiagram::getNumRectangles()
+{
+	return rectangles.size();
+}
+
+int RecognizeERDiagram::getNumSquares()
+{
+	return squares.size();
 }
