@@ -1,26 +1,69 @@
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <iostream>
-using namespace std;
-using namespace cv;
+#include "RecognizeERDiagram.h"
 
-static double angle(Point pt1, Point pt2, Point pt0)
+void RecognizeERDiagram::recognizeDiagram()
 {
-	double dx1 = pt1.x - pt0.x;
-	double dy1 = pt1.y - pt0.y;
-	double dx2 = pt2.x - pt0.x;
-	double dy2 = pt2.y - pt0.y;
-	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+	Mat grayImage;
+	cvtColor(image, grayImage, COLOR_BGR2GRAY);
+
+	Mat thresh;
+	threshold(grayImage, thresh, 150, 255, THRESH_BINARY);
+
+	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+
+	detectShapes();
+}
+
+void RecognizeERDiagram::detectShapes() {
+	vector<Point> approx;
+
+	for (size_t i = 0; i < contours.size(); i++) {
+		// checks if contour is touching border
+		if (contourTouchesBorder(contours[i], image.size()) == false) {
+			approxPolyDP(Mat(contours[i]), approx,
+				arcLength(Mat(contours[i]), true) * 0.02, true);
+
+			//Detect difference between square and rectangle
+			if (approx.size() == 4 &&
+				fabs(contourArea(Mat(approx))) > 1000 &&
+				isContourConvex(Mat(approx)))
+			{
+				double maxCosine = 0;
+
+				//for (int j = 2; j < 5; j++)
+				//{
+				//	double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
+				//	maxCosine = MAX(maxCosine, cosine);
+				//}
+
+				Rect r = boundingRect(contours[i]);
+				double ratio = abs(1 - (double)r.width / r.height);
+				if (ratio <= 0.2) {
+					//Detects its a square
+					squares.push_back(approx);
+				}
+				else {
+					//Detects its a rectangle
+					rectangles.push_back(approx);
+				}
+			}
+			//Detects that it is a circle/oval
+			else if (approx.size() > 6) {
+				circles.push_back(approx);
+			}
+		}
+		else {
+			//delete contour if contour touches border
+			contours.erase(contours.begin() + i);
+		}
+	}
 }
 
 //helper method checks if shape is on the border
-bool contourTouchesBorder(const std::vector<cv::Point>& contour, const cv::Size& imageSize)
+bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
 {
 	cv::Rect shape = cv::boundingRect(contour);
 
-	bool retval = false;
+	bool touchesBorder = false;
 
 	int xMin, xMax, yMin, yMax;
 
@@ -32,100 +75,61 @@ bool contourTouchesBorder(const std::vector<cv::Point>& contour, const cv::Size&
 	//checks if x or y is at the border
 	int shapeEndX = shape.x + shape.width - 1;
 	int shapeEndY = shape.y + shape.height - 1;
-	if (shape.x <= xMin || shape.y <= yMin ||	shapeEndX >= xMax ||shapeEndY >= yMax)
+	if (shape.x <= xMin || shape.y <= yMin || shapeEndX >= xMax || shapeEndY >= yMax)
 	{
-		retval = true;
+		touchesBorder = true;
 	}
 
-	return retval;
+	return touchesBorder;
 }
 
-int main()
+double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
 {
-	/*
-	//Tommy's code to test things
-	Mat testImage = imread("paintTest2.png");
-	
-	//Converts to gray scale image
-	Mat imageInGray;
-	cvtColor(testImage, imageInGray, COLOR_BGR2GRAY);
+	double dx1 = (double)pt1.x - pt0.x;
+	double dy1 = (double)pt1.y - pt0.y;
+	double dx2 = (double)pt2.x - pt0.x;
+	double dy2 = (double)pt2.y - pt0.y;
+	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+}
 
-	//Make a threshold
-	Mat threshImage;
-	threshold(imageInGray, threshImage, 200, 255, THRESH_BINARY);
-	imshow("Binary image", threshImage);
-	waitKey(0);
-	destroyAllWindows();
+void RecognizeERDiagram::drawOriginalImage()
+{
+	imshow("Original Image", image);
+}
 
-	//Finding countours
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(threshImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
-	Mat image_copy = testImage.clone();
-		drawContours(image_copy, contours, -1, Scalar(0, 255, 0), 2);
-		imshow("None approximation", image_copy);
-		waitKey(0);
-		destroyAllWindows();
-	*/
+void RecognizeERDiagram::drawAllContours()
+{
+	Mat imageCopy = image.clone();
+	drawContours(imageCopy, contours, -1, Scalar(120, 0, 120), 2);
+	imshow("All Contours", imageCopy);
+}
 
-	
-	//Allan's code to test things
-	//Mat testImage = imread("rectangle&triangle&circle.png");
-	
-	//paint test
-	Mat testImage = imread("paintTest1.png");
+void RecognizeERDiagram::drawColorCodedContours()
+{
+	Mat imageCopy(image.size(), image.type());
+	drawContours(imageCopy, contours, -1, Scalar(120, 0, 120), 2);
+	drawContours(imageCopy, rectangles, -1, Scalar(255, 0, 0), 2);
+	drawContours(imageCopy, squares, -1, Scalar(0, 255, 0), 2);
+	drawContours(imageCopy, circles, -1, Scalar(0, 0, 255), 2);
+	imshow("Color Coded Contours", imageCopy);
+}
 
-	Mat testImageGray;
-	cvtColor(testImage, testImageGray, COLOR_BGR2GRAY);
+RecognizeERDiagram::RecognizeERDiagram(string fileName)
+{
+	image = imread(fileName);
+}
 
-	Mat thresh;
-	threshold(testImageGray, thresh, 150, 255, THRESH_BINARY);
+int RecognizeERDiagram::getNumCircles()
+{
+	return circles.size();
+}
 
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+int RecognizeERDiagram::getNumRectangles()
+{
+	return rectangles.size();
+}
 
-	vector<vector<Point> > squares;	
-	vector<Point> approx;
-
-	for (size_t i = 0; i < contours.size(); i++){
-		// checks if contour is touching border
-		if (contourTouchesBorder(contours[i], testImage.size()) == false) {
-				approxPolyDP(Mat(contours[i]), approx,
-				arcLength(Mat(contours[i]), true) * 0.02, true);
-
-			if (approx.size() == 4 &&
-				fabs(contourArea(Mat(approx))) > 1000 &&
-				isContourConvex(Mat(approx)))
-			{
-				double maxCosine = 0;
-
-				for (int j = 2; j < 5; j++)
-				{
-					double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
-					maxCosine = MAX(maxCosine, cosine);
-				}
-
-
-				if (maxCosine < 0.3) {
-					squares.push_back(approx);
-				}
-			}
-		}
-		else {
-			//delete contour if contour touches border
-			contours.erase(contours.begin()+i);
-		}
-	}
-
-	Mat testImageCopy = testImage.clone();
-	drawContours(testImageCopy, contours, -1, Scalar(120, 0, 120), 2);
-
-	imshow("Binary Image", thresh);
-	imshow("None approximation", testImageCopy);
-
-	cout << "\nNumber of rectangles: " << squares.size() << endl;
-
-	waitKey(0);
-	destroyAllWindows();
+int RecognizeERDiagram::getNumSquares()
+{
+	return squares.size();
 }

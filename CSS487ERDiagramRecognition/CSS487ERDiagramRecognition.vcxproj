@@ -143,15 +143,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="RecognizeERDiagram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Desktop\paintTest2.png" />
     <Image Include="..\..\..\..\OneDrive\Documents\paintTest1.png" />
     <Image Include="circle.png" />
     <Image Include="nestedrectangle.png" />
+    <Image Include="paintTest3.png" />
     <Image Include="rectangle.png" />
     <Image Include="threerectangles.png" />
     <Image Include="triangle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RecognizeERDiagram.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
