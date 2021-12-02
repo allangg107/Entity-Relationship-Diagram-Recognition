@@ -16,8 +16,9 @@ void testCase(Test test, bool draw)
 	if (draw)
 	{
 		rec->drawOriginalImage();
-		rec->drawAllContours();
-		rec->drawColorCodedContours();
+		//rec->drawAllContours();
+		//rec->drawColorCodedContours();
+		rec->drawRectForShapes();
 	}
 	
 	cout << "\nActual vs Expected" << endl;
@@ -34,7 +35,7 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	testCases.push_back(Test{ "paintTest3.png", 2, 2, 1 });
+	testCases.push_back(Test{ "paintTest4.png", 2, 2, 1 });
 
 	/*
 	add more test cases here

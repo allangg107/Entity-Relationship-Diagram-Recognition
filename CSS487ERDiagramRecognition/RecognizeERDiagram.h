@@ -18,6 +18,9 @@ public:
 	void drawOriginalImage();
 	void drawAllContours();
 	void drawColorCodedContours();
+	void labelShape(Mat& imageCopy, Scalar color, Point upperLeft);
+	void drawRectForShapes();
+	void drawRectForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color);
 	int getNumCircles();
 	int getNumRectangles();
 	int getNumSquares();

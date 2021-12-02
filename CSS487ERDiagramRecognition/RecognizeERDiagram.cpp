@@ -114,6 +114,55 @@ void RecognizeERDiagram::drawColorCodedContours()
 	imshow("Color Coded Contours", imageCopy);
 }
 
+void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLeft) {
+	upperLeft.y -= 3;
+	//if red, than entity type
+	if (color == Scalar(255, 0, 0)) {
+		putText(imageCopy, "Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+	}
+	//if green, than relationship type
+	if (color == Scalar(0, 255, 0)) {
+		putText(imageCopy, "Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
+	}
+	//if blue, than attribute type
+	if (color == Scalar(0, 0, 255)) {
+		putText(imageCopy, "Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+	}
+}
+
+void RecognizeERDiagram::drawRectForShapes() {
+
+	Mat imageCopy = image.clone();
+	if (!rectangles.empty()) drawRectForSpecificShape(rectangles, imageCopy, Scalar(255, 0, 0));
+	if (!squares.empty()) drawRectForSpecificShape(squares, imageCopy, Scalar(0, 255, 0));
+	if (!circles.empty()) drawRectForSpecificShape(circles, imageCopy, Scalar(0, 0, 255));
+	imshow("Color Coded Shapes", imageCopy);
+}
+
+void RecognizeERDiagram::drawRectForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color) {
+	Point upperLeft = currentShape[0][0];
+	Point lowerRight = currentShape[0][0];
+	
+	for (int i = 0; i < currentShape.size(); i++) {
+		upperLeft = currentShape[i][0];
+		lowerRight = currentShape[i][0];
+		for (int j = 0; j < currentShape[i].size(); j++) {
+			if (currentShape[i][j].x < upperLeft.x) upperLeft.x = currentShape[i][j].x;
+			if (currentShape[i][j].y < upperLeft.y) upperLeft.y = currentShape[i][j].y;
+			if (currentShape[i][j].x > lowerRight.x) lowerRight.x = currentShape[i][j].x;
+			if (currentShape[i][j].y > lowerRight.y) lowerRight.y = currentShape[i][j].y;
+		}
+		
+		upperLeft.x -= 20;
+		upperLeft.y -= 20;
+		lowerRight.x += 20;
+		lowerRight.y += 20;
+		rectangle(imageCopy, upperLeft, lowerRight, color, 1);
+		labelShape(imageCopy, color, upperLeft);
+	}
+}
+
+
 RecognizeERDiagram::RecognizeERDiagram(string fileName)
 {
 	image = imread(fileName);
