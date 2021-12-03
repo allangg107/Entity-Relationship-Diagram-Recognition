@@ -17,6 +17,7 @@ void testCase(Test test, bool draw)
 	{
 		rec->drawOriginalImage();
 		rec->drawRectForShapes();
+		rec->drawColorCodedContours();
 	}
 
 	cout << "\nActual vs Expected" << endl;

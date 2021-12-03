@@ -29,11 +29,14 @@ private:
 	Mat image;
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	vector<vector<Point>> squares;
-	vector<vector<Point>> rectangles;
-	vector<vector<Point>> circles;
+	vector<vector<Point>> relationships;
+	vector<vector<Point>> entities;
+	vector<vector<Point>> attributes;
+	vector<vector<Point>> weakRelationships;
+	vector<vector<Point>> weakEntities;
 
 	void detectShapes();
+	bool checkIfWeak(int contourIndex);
 	bool contourTouchesBorder(const vector<Point>& contour, const Size& imageSize);
 	void eraseParentContour();
 	double angle(const Point pt1, const Point pt2, const Point pt0);

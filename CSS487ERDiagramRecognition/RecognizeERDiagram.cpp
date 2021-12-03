@@ -32,31 +32,28 @@ void RecognizeERDiagram::detectShapes()
 				fabs(contourArea(Mat(approx))) > 1000 &&
 				isContourConvex(Mat(approx)))
 			{
-				double maxCosine = 0;
-
-				//for (int j = 2; j < 5; j++)
-				//{
-				//	double cosine = fabs(angle(approx[j % 4], approx[j - 2], approx[j - 1]));
-				//	maxCosine = MAX(maxCosine, cosine);
-				//}
 
 				Rect r = boundingRect(contours[i]);
 				double ratio = abs(1 - (double)r.width / r.height);
 				if (ratio <= 0.2) 
 				{
 					//Detects its a square
-					squares.push_back(approx);
+					bool weak = checkIfWeak(i);
+					if (weak) weakRelationships.push_back(approx);
+					else relationships.push_back(approx);
 				}
 				else 
 				{
 					//Detects its a rectangle
-					rectangles.push_back(approx);
+					bool weak = checkIfWeak(i);
+					if (weak) weakEntities.push_back(approx);
+					else entities.push_back(approx);
 				}
 			}
 			//Detects that it is a circle/oval
 			else if (approx.size() > 6) 
 			{
-				circles.push_back(approx);
+				attributes.push_back(approx);
 			}
 		}
 		else 
@@ -65,6 +62,13 @@ void RecognizeERDiagram::detectShapes()
 			contours.erase(contours.begin() + i);
 		}
 	}
+}
+
+bool RecognizeERDiagram::checkIfWeak(int contourIndex)
+{
+	if (hierarchy[contourIndex][2] != -1) return true;
+	
+	return false;
 }
 
 //helper method checks if shape is on the border
@@ -94,11 +98,11 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 
 void RecognizeERDiagram::eraseParentContour()
 {
-	for (size_t i = 0; i < circles.size(); i++)
+	for (size_t i = 0; i < attributes.size(); i++)
 	{
-		if (contourArea(circles[i]) > 20000)
+		if (contourArea(attributes[i]) > 20000)
 		{
-			circles.erase(circles.begin() + i);
+			attributes.erase(attributes.begin() + i);
 		}
 	}
 }
@@ -128,38 +132,52 @@ void RecognizeERDiagram::drawColorCodedContours()
 {
 	Mat imageCopy(image.size(), image.type());
 	drawContours(imageCopy, contours, -1, Scalar(120, 0, 120), 2);
-	drawContours(imageCopy, rectangles, -1, Scalar(255, 0, 0), 2);
-	drawContours(imageCopy, squares, -1, Scalar(0, 255, 0), 2);
-	drawContours(imageCopy, circles, -1, Scalar(0, 0, 255), 2);
+	drawContours(imageCopy, entities, -1, Scalar(255, 0, 0), 2);
+	drawContours(imageCopy, relationships, -1, Scalar(0, 255, 0), 2);
+	drawContours(imageCopy, attributes, -1, Scalar(0, 0, 255), 2);
+	drawContours(imageCopy, weakEntities, -1, Scalar(200, 150, 150), 2);
+	drawContours(imageCopy, weakRelationships, -1, Scalar(150, 200, 150), 2);
 	imshow("Color Coded Contours", imageCopy);
 }
 
 void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLeft) 
 {
 	upperLeft.y -= 3;
-	//if red, than entity type
+	//if red, then entity type
 	if (color == Scalar(255, 0, 0)) 
 	{
 		putText(imageCopy, "Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
-	//if green, than relationship type
+	//if green, then relationship type
 	if (color == Scalar(0, 255, 0)) 
 	{
 		putText(imageCopy, "Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
 	}
-	//if blue, than attribute type
+	//if blue, then attribute type
 	if (color == Scalar(0, 0, 255)) 
 	{
 		putText(imageCopy, "Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+	}
+	//if weird blue, then weak entity type
+	if (color == Scalar(200, 150, 150))
+	{
+		putText(imageCopy, "Weak Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+	}
+	//if green, then weak relationship type
+	if (color == Scalar(150, 200, 150))
+	{
+		putText(imageCopy, "Weak Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
 }
 
 void RecognizeERDiagram::drawRectForShapes() 
 {
 	Mat imageCopy = image.clone();
-	if (!rectangles.empty()) drawRectForSpecificShape(rectangles, imageCopy, Scalar(255, 0, 0));
-	if (!squares.empty()) drawRectForSpecificShape(squares, imageCopy, Scalar(0, 255, 0));
-	if (!circles.empty()) drawRectForSpecificShape(circles, imageCopy, Scalar(0, 0, 255));
+	if (!entities.empty()) drawRectForSpecificShape(entities, imageCopy, Scalar(255, 0, 0));
+	if (!relationships.empty()) drawRectForSpecificShape(relationships, imageCopy, Scalar(0, 255, 0));
+	if (!attributes.empty()) drawRectForSpecificShape(attributes, imageCopy, Scalar(0, 0, 255));
+	if (!weakEntities.empty()) drawRectForSpecificShape(weakEntities, imageCopy, Scalar(200, 150, 150));
+	if (!weakRelationships.empty()) drawRectForSpecificShape(weakRelationships, imageCopy, Scalar(150, 200, 150));
 	imshow("Color Coded Shapes", imageCopy);
 }
 
@@ -193,15 +211,15 @@ RecognizeERDiagram::RecognizeERDiagram(string fileName)
 
 int RecognizeERDiagram::getNumCircles()
 {
-	return (int)circles.size();
+	return (int)attributes.size();
 }
 
 int RecognizeERDiagram::getNumRectangles()
 {
-	return (int)rectangles.size();
+	return (int)entities.size();
 }
 
 int RecognizeERDiagram::getNumSquares()
 {
-	return (int)squares.size();
+	return (int)relationships.size();
 }
