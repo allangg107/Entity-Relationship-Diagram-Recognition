@@ -11,14 +11,19 @@ void RecognizeERDiagram::recognizeDiagram()
 	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
 	detectShapes();
+
+	eraseParentContour();
 }
 
-void RecognizeERDiagram::detectShapes() {
+void RecognizeERDiagram::detectShapes() 
+{
 	vector<Point> approx;
 
-	for (size_t i = 0; i < contours.size(); i++) {
+	for (size_t i = 0; i < contours.size(); i++) 
+	{
 		// checks if contour is touching border
-		if (contourTouchesBorder(contours[i], image.size()) == false) {
+		if (contourTouchesBorder(contours[i], image.size()) == false) 
+		{
 			approxPolyDP(Mat(contours[i]), approx,
 				arcLength(Mat(contours[i]), true) * 0.02, true);
 
@@ -37,21 +42,25 @@ void RecognizeERDiagram::detectShapes() {
 
 				Rect r = boundingRect(contours[i]);
 				double ratio = abs(1 - (double)r.width / r.height);
-				if (ratio <= 0.2) {
+				if (ratio <= 0.2) 
+				{
 					//Detects its a square
 					squares.push_back(approx);
 				}
-				else {
+				else 
+				{
 					//Detects its a rectangle
 					rectangles.push_back(approx);
 				}
 			}
 			//Detects that it is a circle/oval
-			else if (approx.size() > 6) {
+			else if (approx.size() > 6) 
+			{
 				circles.push_back(approx);
 			}
 		}
-		else {
+		else 
+		{
 			//delete contour if contour touches border
 			contours.erase(contours.begin() + i);
 		}
@@ -81,6 +90,17 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 	}
 
 	return touchesBorder;
+}
+
+void RecognizeERDiagram::eraseParentContour()
+{
+	for (size_t i = 0; i < circles.size(); i++)
+	{
+		if (contourArea(circles[i]) > 20000)
+		{
+			circles.erase(circles.begin() + i);
+		}
+	}
 }
 
 double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
@@ -114,24 +134,28 @@ void RecognizeERDiagram::drawColorCodedContours()
 	imshow("Color Coded Contours", imageCopy);
 }
 
-void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLeft) {
+void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLeft) 
+{
 	upperLeft.y -= 3;
 	//if red, than entity type
-	if (color == Scalar(255, 0, 0)) {
+	if (color == Scalar(255, 0, 0)) 
+	{
 		putText(imageCopy, "Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
 	//if green, than relationship type
-	if (color == Scalar(0, 255, 0)) {
+	if (color == Scalar(0, 255, 0)) 
+	{
 		putText(imageCopy, "Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
 	}
 	//if blue, than attribute type
-	if (color == Scalar(0, 0, 255)) {
+	if (color == Scalar(0, 0, 255)) 
+	{
 		putText(imageCopy, "Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
 }
 
-void RecognizeERDiagram::drawRectForShapes() {
-
+void RecognizeERDiagram::drawRectForShapes() 
+{
 	Mat imageCopy = image.clone();
 	if (!rectangles.empty()) drawRectForSpecificShape(rectangles, imageCopy, Scalar(255, 0, 0));
 	if (!squares.empty()) drawRectForSpecificShape(squares, imageCopy, Scalar(0, 255, 0));
@@ -162,7 +186,6 @@ void RecognizeERDiagram::drawRectForSpecificShape(vector<vector<Point>> currentS
 	}
 }
 
-
 RecognizeERDiagram::RecognizeERDiagram(string fileName)
 {
 	image = imread(fileName);
@@ -170,15 +193,15 @@ RecognizeERDiagram::RecognizeERDiagram(string fileName)
 
 int RecognizeERDiagram::getNumCircles()
 {
-	return circles.size();
+	return (int)circles.size();
 }
 
 int RecognizeERDiagram::getNumRectangles()
 {
-	return rectangles.size();
+	return (int)rectangles.size();
 }
 
 int RecognizeERDiagram::getNumSquares()
 {
-	return squares.size();
+	return (int)squares.size();
 }

@@ -16,11 +16,9 @@ void testCase(Test test, bool draw)
 	if (draw)
 	{
 		rec->drawOriginalImage();
-		//rec->drawAllContours();
-		//rec->drawColorCodedContours();
 		rec->drawRectForShapes();
 	}
-	
+
 	cout << "\nActual vs Expected" << endl;
 	cout << "Circles: " << rec->getNumCircles() << " : " << test.expectedCircles << endl;
 	cout << "Rects  : " << rec->getNumRectangles() << " : " << test.expectedRectangles << endl;

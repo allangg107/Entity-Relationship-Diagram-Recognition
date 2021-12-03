@@ -47,6 +47,9 @@
     <Image Include="paintTest3.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="paintTest5.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RecognizeERDiagram.h">

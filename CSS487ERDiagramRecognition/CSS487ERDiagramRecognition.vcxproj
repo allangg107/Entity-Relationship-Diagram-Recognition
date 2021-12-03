@@ -152,6 +152,7 @@
     <Image Include="circle.png" />
     <Image Include="nestedrectangle.png" />
     <Image Include="paintTest3.png" />
+    <Image Include="paintTest5.png" />
     <Image Include="rectangle.png" />
     <Image Include="threerectangles.png" />
     <Image Include="triangle.png" />

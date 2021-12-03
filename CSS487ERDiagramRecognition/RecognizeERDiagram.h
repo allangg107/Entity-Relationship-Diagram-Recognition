@@ -35,6 +35,7 @@ private:
 
 	void detectShapes();
 	bool contourTouchesBorder(const vector<Point>& contour, const Size& imageSize);
+	void eraseParentContour();
 	double angle(const Point pt1, const Point pt2, const Point pt0);
 };
 
