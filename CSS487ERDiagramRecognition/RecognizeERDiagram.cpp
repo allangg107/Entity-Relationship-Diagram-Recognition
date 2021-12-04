@@ -117,7 +117,7 @@ void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<v
 	{
 		for (int j = 0; j < type.size(); j++)
 		{
-			if(isNested(type[i], type[j])) // [i] is nested inside [j]
+			if(isNested(type[i], type[j])) // if [i] is nested inside [j]
 			{
 				currentWeakType.push_back(type[j]); // consider [j] a weak entity
 				for (int k = 0; k < currentWeakType.size(); k++)
@@ -170,7 +170,8 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 		if (contour2[i].x > lowerRight2.x) lowerRight2.x = contour2[i].x;
 		if (contour2[i].y > lowerRight2.y) lowerRight2.y = contour2[i].y;
 	}
-	/*Point upperLeft1, lowerLeft1, upperRight1, lowerRight1 = contour1[0];
+	/*
+	Point upperLeft1, lowerLeft1, upperRight1, lowerRight1 = contour1[0];
 	Point upperLeft2, lowerLeft2, upperRight2, lowerRight2 = contour2[0];
 
 	for (int i = 0; i < contour1.size(); i++)
@@ -208,6 +209,7 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 	return false;
 }
 
+/*
 double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
 {
 	double dx1 = (double)pt1.x - pt0.x;
@@ -216,6 +218,7 @@ double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point p
 	double dy2 = (double)pt2.y - pt0.y;
 	return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
 }
+*/
 
 void RecognizeERDiagram::drawOriginalImage()
 {
@@ -274,15 +277,15 @@ void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLef
 void RecognizeERDiagram::drawRectForShapes()
 {
 	Mat imageCopy = image.clone();
-	if (!entities.empty()) drawRectForSpecificShape(entities, imageCopy, Scalar(255, 0, 0));
-	if (!relationships.empty()) drawRectForSpecificShape(relationships, imageCopy, Scalar(0, 255, 0));
-	if (!attributes.empty()) drawRectForSpecificShape(attributes, imageCopy, Scalar(0, 0, 255));
-	if (!weakEntities.empty()) drawRectForSpecificShape(weakEntities, imageCopy, Scalar(200, 150, 150));
-	if (!weakRelationships.empty()) drawRectForSpecificShape(weakRelationships, imageCopy, Scalar(150, 200, 150));
+	if (!entities.empty()) drawRectsForSpecificShape(entities, imageCopy, Scalar(255, 0, 0));
+	if (!relationships.empty()) drawRectsForSpecificShape(relationships, imageCopy, Scalar(0, 255, 0));
+	if (!attributes.empty()) drawRectsForSpecificShape(attributes, imageCopy, Scalar(0, 0, 255));
+	if (!weakEntities.empty()) drawRectsForSpecificShape(weakEntities, imageCopy, Scalar(200, 150, 150));
+	if (!weakRelationships.empty()) drawRectsForSpecificShape(weakRelationships, imageCopy, Scalar(150, 200, 150));
 	imshow("Color Coded Shapes", imageCopy);
 }
 
-void RecognizeERDiagram::drawRectForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color) {
+void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color) {
 	Point upperLeft = currentShape[0][0];
 	Point lowerRight = currentShape[0][0];
 	
@@ -313,17 +316,27 @@ RecognizeERDiagram::RecognizeERDiagram(string fileName)
 	recognizeDiagram();
 }
 
-int RecognizeERDiagram::getNumCircles()
+int RecognizeERDiagram::getNumAttributes()
 {
 	return (int)attributes.size();
 }
 
-int RecognizeERDiagram::getNumRectangles()
+int RecognizeERDiagram::getNumEntities()
 {
 	return (int)entities.size();
 }
 
-int RecognizeERDiagram::getNumSquares()
+int RecognizeERDiagram::getNumRelationships()
 {
 	return (int)relationships.size();
+}
+
+int RecognizeERDiagram::getNumWeakEntities()
+{
+	return (int)weakEntities.size();
+}
+
+int RecognizeERDiagram::getNumWeakRelationships()
+{
+	return (int)weakRelationships.size();
 }

@@ -3,9 +3,11 @@
 struct Test
 {
 	string imageName;
-	int expectedCircles;
-	int expectedRectangles;
-	int expectedSquares;
+	int expectedAttributes;
+	int expectedEntities;
+	int expectedRelationships;
+	int expectedWeakEntities;
+	int expectedWeakRelationships;
 };
 
 void testCase(Test test, bool draw)
@@ -20,9 +22,11 @@ void testCase(Test test, bool draw)
 	}
 
 	cout << "\nActual vs Expected" << endl;
-	cout << "Circles: " << rec->getNumCircles() << " : " << test.expectedCircles << endl;
-	cout << "Rects  : " << rec->getNumRectangles() << " : " << test.expectedRectangles << endl;
-	cout << "Squares: " << rec->getNumSquares() << " : " << test.expectedSquares << endl;
+	cout << "Attributes        : " << rec->getNumAttributes() << " : " << test.expectedAttributes << endl;
+	cout << "Entities          : " << rec->getNumEntities() << " : " << test.expectedEntities << endl;
+	cout << "Relationships     : " << rec->getNumRelationships() << " : " << test.expectedRelationships << endl;
+	cout << "Weak Entities     : " << rec->getNumWeakEntities() << " : " << test.expectedWeakEntities << endl;
+	cout << "Weak Relationships: " << rec->getNumWeakRelationships() << " : " << test.expectedWeakRelationships << endl;
 
 	waitKey(0);
 	destroyAllWindows();
@@ -33,7 +37,7 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	testCases.push_back(Test{ "paintTest6.png", 2, 2, 1 });
+	testCases.push_back(Test{ "paintTest6.png", -1, -1, -1, -1, -1 });
 
 	/*
 	add more test cases here
