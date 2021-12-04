@@ -39,8 +39,7 @@ private:
 	// bool checkIfWeak(int contourIndex);
 	bool contourTouchesBorder(const vector<Point>& contour, const Size& imageSize);
 	void eraseParentContour();
-	void determineWeakEntities();
-	void determineWeakRelationships();
+	void determineWeakType(vector<vector<Point>>& type, vector<vector<Point>>& weakType);
 	bool isNested(const vector<Point>& contour1, const vector<Point>& contour2);
 	double angle(const Point pt1, const Point pt2, const Point pt0);
 };

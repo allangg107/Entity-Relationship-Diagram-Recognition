@@ -14,8 +14,8 @@ void RecognizeERDiagram::recognizeDiagram()
 
 	eraseParentContour();
 
-	determineWeakEntities();
-	determineWeakRelationships();
+	determineWeakType(entities, weakEntities);
+	determineWeakType(relationships, weakRelationships);
 }
 
 void RecognizeERDiagram::detectShapes() 
@@ -109,55 +109,54 @@ void RecognizeERDiagram::eraseParentContour()
 	}
 }
 
-void RecognizeERDiagram::determineWeakEntities()
+void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<vector<Point>>& weakType)
 {
-	vector<vector<Point>> currentWeakEntities;
+	vector<vector<Point>> currentWeakType;
 
-	for (int i = 0; i < entities.size(); i++)
+	for (int i = 0; i < type.size(); i++)
 	{
-		for (int j = 0; j < entities.size(); j++)
+		for (int j = 0; j < type.size(); j++)
 		{
-			if(isNested(entities[i], entities[j])) // [i] is nested inside [j]
+			if(isNested(type[i], type[j])) // [i] is nested inside [j]
 			{
-				currentWeakEntities.push_back(entities[j]); // consider [j] a weak entity
-				for (int k = 0; k < currentWeakEntities.size(); k++)
+				currentWeakType.push_back(type[j]); // consider [j] a weak entity
+				for (int k = 0; k < currentWeakType.size(); k++)
 				{
 					// if [i] was previously determined to be a weak entity, remove it
-					if (currentWeakEntities[k] == entities[i])
+					if (currentWeakType[k] == type[i])
 					{
-						currentWeakEntities.erase(currentWeakEntities.begin() + k);
+						currentWeakType.erase(currentWeakType.begin() + k);
 					}
 				}
-				// remove [i] from entities, since it is part of a weak entity
-				entities.erase(entities.begin() + i); 
+				// remove [i] from type, since it is part of a weak entity
+				type.erase(type.begin() + i); 
 				// if [i] is removed, need to reset for check on next element
+				i--;
 				break;
 			}
 		}
 	}
 
-	for (int i = 0; i < currentWeakEntities.size(); i++)
+	for (int i = 0; i < currentWeakType.size(); i++)
 	{
-		for (int j = 0; j < entities.size(); j++)
+		for (int j = 0; j < type.size(); j++)
 		{
-			if (entities[j] == currentWeakEntities[i])
+			if (type[j] == currentWeakType[i])
 			{
-				entities.erase(entities.begin() + j);
+				type.erase(type.begin() + j);
 			}
+			weakType.push_back(currentWeakType[i]);
 		}
 	}
-}
-
-void RecognizeERDiagram::determineWeakRelationships()
-{
-	// will be same as determineWeakEntities() except using relationship vectors
 }
 
 bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Point>& contour2)
 {
 	// determine upperLeft and lowerRight points for both contours
-	Point upperLeft1, lowerRight1 = contour1[0];
-	Point upperLeft2, lowerRight2 = contour2[0];
+	Point upperLeft1 = contour1[0];
+	Point lowerRight1 = contour1[0];
+	Point upperLeft2 = contour2[0];
+	Point lowerRight2 = contour2[0];
 
 	for (int i = 0; i < contour1.size(); i++) 
 	{
@@ -202,7 +201,8 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 	// check if nested
 	if (upperLeft2.x < upperLeft1.x && upperLeft2.y < upperLeft1.y && lowerRight2.x > lowerRight1.x && lowerRight2.y > lowerRight1.y)
 	{
-		return true;
+		cout << "true" << endl;
+ 		return true;
 	}
 
 	return false;
