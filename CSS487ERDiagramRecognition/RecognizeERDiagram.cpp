@@ -13,6 +13,9 @@ void RecognizeERDiagram::recognizeDiagram()
 	detectShapes();
 
 	eraseParentContour();
+
+	determineWeakEntities();
+	determineWeakRelationships();
 }
 
 void RecognizeERDiagram::detectShapes() 
@@ -35,23 +38,20 @@ void RecognizeERDiagram::detectShapes()
 
 				Rect r = boundingRect(contours[i]);
 				double ratio = abs(1 - (double)r.width / r.height);
-				if (ratio <= 0.2) 
+				if (ratio <= 0.2) // if square
 				{
-					//Detects its a square
-					bool weak = checkIfWeak(i);
-					if (weak) weakRelationships.push_back(approx);
-					else relationships.push_back(approx);
+					/*bool weak = checkIfWeak(i);
+					if (weak) weakRelationships.push_back(approx);*/
+					relationships.push_back(approx);
 				}
-				else 
+				else // otherwise rectangle
 				{
-					//Detects its a rectangle
-					bool weak = checkIfWeak(i);
-					if (weak) weakEntities.push_back(approx);
-					else entities.push_back(approx);
+					/*bool weak = checkIfWeak(i);
+					if (weak) weakEntities.push_back(approx);*/
+					entities.push_back(approx);
 				}
 			}
-			//Detects that it is a circle/oval
-			else if (approx.size() > 6) 
+			else if (approx.size() > 6) // if greater than 6 vertices, it is a circle
 			{
 				attributes.push_back(approx);
 			}
@@ -64,12 +64,14 @@ void RecognizeERDiagram::detectShapes()
 	}
 }
 
+/*
 bool RecognizeERDiagram::checkIfWeak(int contourIndex)
 {
 	if (hierarchy[contourIndex][2] != -1) return true;
 	
 	return false;
 }
+*/
 
 //helper method checks if shape is on the border
 bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
@@ -105,6 +107,105 @@ void RecognizeERDiagram::eraseParentContour()
 			attributes.erase(attributes.begin() + i);
 		}
 	}
+}
+
+void RecognizeERDiagram::determineWeakEntities()
+{
+	vector<vector<Point>> currentWeakEntities;
+
+	for (int i = 0; i < entities.size(); i++)
+	{
+		for (int j = 0; j < entities.size(); j++)
+		{
+			if(isNested(entities[i], entities[j])) // [i] is nested inside [j]
+			{
+				currentWeakEntities.push_back(entities[j]); // consider [j] a weak entity
+				for (int k = 0; k < currentWeakEntities.size(); k++)
+				{
+					// if [i] was previously determined to be a weak entity, remove it
+					if (currentWeakEntities[k] == entities[i])
+					{
+						currentWeakEntities.erase(currentWeakEntities.begin() + k);
+					}
+				}
+				// remove [i] from entities, since it is part of a weak entity
+				entities.erase(entities.begin() + i); 
+				// if [i] is removed, need to reset for check on next element
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < currentWeakEntities.size(); i++)
+	{
+		for (int j = 0; j < entities.size(); j++)
+		{
+			if (entities[j] == currentWeakEntities[i])
+			{
+				entities.erase(entities.begin() + j);
+			}
+		}
+	}
+}
+
+void RecognizeERDiagram::determineWeakRelationships()
+{
+	// will be same as determineWeakEntities() except using relationship vectors
+}
+
+bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Point>& contour2)
+{
+	// determine upperLeft and lowerRight points for both contours
+	Point upperLeft1, lowerRight1 = contour1[0];
+	Point upperLeft2, lowerRight2 = contour2[0];
+
+	for (int i = 0; i < contour1.size(); i++) 
+	{
+		if (contour1[i].x < upperLeft1.x) upperLeft1.x = contour1[i].x;
+		if (contour1[i].y < upperLeft1.y) upperLeft1.y = contour1[i].y;
+		if (contour1[i].x > lowerRight1.x) lowerRight1.x = contour1[i].x;
+		if (contour1[i].y > lowerRight1.y) lowerRight1.y = contour1[i].y;
+
+		if (contour2[i].x < upperLeft2.x) upperLeft2.x = contour2[i].x;
+		if (contour2[i].y < upperLeft2.y) upperLeft2.y = contour2[i].y;
+		if (contour2[i].x > lowerRight2.x) lowerRight2.x = contour2[i].x;
+		if (contour2[i].y > lowerRight2.y) lowerRight2.y = contour2[i].y;
+	}
+	/*Point upperLeft1, lowerLeft1, upperRight1, lowerRight1 = contour1[0];
+	Point upperLeft2, lowerLeft2, upperRight2, lowerRight2 = contour2[0];
+
+	for (int i = 0; i < contour1.size(); i++)
+	{
+		if (contour1[i].x <= upperLeft1.x)
+		{
+			if (contour1[i].y <= upperLeft1.y) upperLeft1 = contour1[i];
+			else lowerLeft1 = contour1[i];
+		}
+		else
+		{
+			if (contour1[i].y >= lowerRight1.y) lowerRight1 = contour1[i];
+			else upperRight1 = contour1[i];
+		}
+
+		if (contour2[i].x <= upperLeft2.x)
+		{
+			if (contour2[i].y <= upperLeft2.y) upperLeft2 = contour2[i];
+			else lowerLeft2 = contour2[i];
+		}
+		else
+		{
+			if (contour2[i].y >= lowerRight2.y) lowerRight2 = contour2[i];
+			else upperRight2 = contour2[i];
+		}
+	}*/
+
+	// check if nested
+	if (upperLeft2.x < upperLeft1.x && upperLeft2.y < upperLeft1.y && lowerRight2.x > lowerRight1.x && lowerRight2.y > lowerRight1.y)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
@@ -170,7 +271,7 @@ void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLef
 	}
 }
 
-void RecognizeERDiagram::drawRectForShapes() 
+void RecognizeERDiagram::drawRectForShapes()
 {
 	Mat imageCopy = image.clone();
 	if (!entities.empty()) drawRectForSpecificShape(entities, imageCopy, Scalar(255, 0, 0));
@@ -185,10 +286,12 @@ void RecognizeERDiagram::drawRectForSpecificShape(vector<vector<Point>> currentS
 	Point upperLeft = currentShape[0][0];
 	Point lowerRight = currentShape[0][0];
 	
-	for (int i = 0; i < currentShape.size(); i++) {
+	for (int i = 0; i < currentShape.size(); i++) 
+	{
 		upperLeft = currentShape[i][0];
 		lowerRight = currentShape[i][0];
-		for (int j = 0; j < currentShape[i].size(); j++) {
+		for (int j = 0; j < currentShape[i].size(); j++) 
+		{
 			if (currentShape[i][j].x < upperLeft.x) upperLeft.x = currentShape[i][j].x;
 			if (currentShape[i][j].y < upperLeft.y) upperLeft.y = currentShape[i][j].y;
 			if (currentShape[i][j].x > lowerRight.x) lowerRight.x = currentShape[i][j].x;
@@ -207,6 +310,7 @@ void RecognizeERDiagram::drawRectForSpecificShape(vector<vector<Point>> currentS
 RecognizeERDiagram::RecognizeERDiagram(string fileName)
 {
 	image = imread(fileName);
+	recognizeDiagram();
 }
 
 int RecognizeERDiagram::getNumCircles()

@@ -11,7 +11,6 @@ struct Test
 void testCase(Test test, bool draw)
 {
 	RecognizeERDiagram* rec = new RecognizeERDiagram(test.imageName);
-	rec->recognizeDiagram();
 
 	if (draw)
 	{
@@ -34,7 +33,7 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	testCases.push_back(Test{ "paintTest4.png", 2, 2, 1 });
+	testCases.push_back(Test{ "paintTest6.png", 2, 2, 1 });
 
 	/*
 	add more test cases here

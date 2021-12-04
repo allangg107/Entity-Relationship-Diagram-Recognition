@@ -14,7 +14,6 @@ class RecognizeERDiagram
 public:
 	RecognizeERDiagram() = delete;
 	RecognizeERDiagram(string fileName);
-	void recognizeDiagram();
 	void drawOriginalImage();
 	void drawAllContours();
 	void drawColorCodedContours();
@@ -35,10 +34,14 @@ private:
 	vector<vector<Point>> weakRelationships;
 	vector<vector<Point>> weakEntities;
 
+	void recognizeDiagram();
 	void detectShapes();
-	bool checkIfWeak(int contourIndex);
+	// bool checkIfWeak(int contourIndex);
 	bool contourTouchesBorder(const vector<Point>& contour, const Size& imageSize);
 	void eraseParentContour();
+	void determineWeakEntities();
+	void determineWeakRelationships();
+	bool isNested(const vector<Point>& contour1, const vector<Point>& contour2);
 	double angle(const Point pt1, const Point pt2, const Point pt0);
 };
 
