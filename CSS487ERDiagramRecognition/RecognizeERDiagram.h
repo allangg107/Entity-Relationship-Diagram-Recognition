@@ -20,6 +20,7 @@ public:
 	void labelShape(Mat& imageCopy, Scalar color, Point upperLeft);
 	void drawRectForShapes();
 	void drawRectsForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color);
+	bool containsShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape);
 	int getNumAttributes();
 	int getNumEntities();
 	int getNumRelationships();

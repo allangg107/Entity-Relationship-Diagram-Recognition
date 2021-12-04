@@ -145,7 +145,7 @@ void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<v
 			{
 				type.erase(type.begin() + j);
 			}
-			weakType.push_back(currentWeakType[i]);
+			if (!containsShape(currentWeakType[i], weakType)) weakType.push_back(currentWeakType[i]);
 		}
 	}
 }
@@ -202,7 +202,6 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 	// check if nested
 	if (upperLeft2.x < upperLeft1.x && upperLeft2.y < upperLeft1.y && lowerRight2.x > lowerRight1.x && lowerRight2.y > lowerRight1.y)
 	{
-		cout << "true" << endl;
  		return true;
 	}
 
@@ -308,6 +307,15 @@ void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> current
 		rectangle(imageCopy, upperLeft, lowerRight, color, 1);
 		labelShape(imageCopy, color, upperLeft);
 	}
+}
+
+bool RecognizeERDiagram::containsShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape)
+{
+	for (int i = 0; i < searchShape.size(); i++)
+	{
+		if (targetShape == searchShape[i]) return true;
+	}
+	return false;
 }
 
 RecognizeERDiagram::RecognizeERDiagram(string fileName)
