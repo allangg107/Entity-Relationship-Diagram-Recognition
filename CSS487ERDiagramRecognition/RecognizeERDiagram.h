@@ -20,7 +20,7 @@ public:
 	void labelShape(Mat& imageCopy, Scalar color, Point upperLeft);
 	void drawRectForShapes();
 	void drawRectsForSpecificShape(vector<vector<Point>> currentShape, Mat& imageCopy, Scalar color);
-	bool containsShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape);
+	int indexOfShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape);
 	int getNumAttributes();
 	int getNumEntities();
 	int getNumRelationships();
@@ -44,7 +44,7 @@ private:
 	void eraseParentContour();
 	void determineWeakType(vector<vector<Point>>& type, vector<vector<Point>>& weakType);
 	bool isNested(const vector<Point>& contour1, const vector<Point>& contour2);
-	double angle(const Point pt1, const Point pt2, const Point pt0);
+	// double angle(const Point pt1, const Point pt2, const Point pt0);
 };
 
 #endif

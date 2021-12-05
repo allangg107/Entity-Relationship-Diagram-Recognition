@@ -109,7 +109,7 @@ void RecognizeERDiagram::eraseParentContour()
 
 void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<vector<Point>>& weakType)
 {
-	vector<vector<Point>> currentWeakType;
+	// vector<vector<Point>> currentWeakType;
 
 	for (int i = 0; i < type.size(); i++)
 	{
@@ -117,15 +117,8 @@ void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<v
 		{
 			if(isNested(type[i], type[j])) // if [i] is nested inside [j]
 			{
-				currentWeakType.push_back(type[j]); // consider [j] a weak entity
-				for (int k = 0; k < currentWeakType.size(); k++)
-				{
-					// if [i] was previously determined to be a weak entity, remove it
-					if (currentWeakType[k] == type[i])
-					{
-						currentWeakType.erase(currentWeakType.begin() + k);
-					}
-				}
+				// consider [j] a weak entity if it is not already
+				if (indexOfShape(type[j], weakType) == -1) weakType.push_back(type[j]);
 				// remove [i] from type, since it is part of a weak entity
 				type.erase(type.begin() + i); 
 				// if [i] is removed, need to reset for check on next element
@@ -135,16 +128,12 @@ void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<v
 		}
 	}
 
-	for (int i = 0; i < currentWeakType.size(); i++)
+	// removes any weak entities from entities
+	int index;
+	for (int i = 0; i < weakType.size(); i++)
 	{
-		for (int j = 0; j < type.size(); j++)
-		{
-			if (type[j] == currentWeakType[i])
-			{
-				type.erase(type.begin() + j);
-			}
-			if (!containsShape(currentWeakType[i], weakType)) weakType.push_back(currentWeakType[i]);
-		}
+		index = indexOfShape(weakType[i], type);
+		if (index != -1) type.erase(type.begin() + index);
 	}
 }
 
@@ -307,13 +296,13 @@ void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> current
 	}
 }
 
-bool RecognizeERDiagram::containsShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape)
+int RecognizeERDiagram::indexOfShape(const vector<Point>& targetShape, const vector<vector<Point>>& searchShape)
 {
 	for (int i = 0; i < searchShape.size(); i++)
 	{
-		if (targetShape == searchShape[i]) return true;
+		if (targetShape == searchShape[i]) return i;
 	}
-	return false;
+	return -1;
 }
 
 RecognizeERDiagram::RecognizeERDiagram(string fileName)
