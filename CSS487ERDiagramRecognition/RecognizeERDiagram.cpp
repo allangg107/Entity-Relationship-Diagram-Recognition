@@ -76,9 +76,7 @@ bool RecognizeERDiagram::checkIfWeak(int contourIndex)
 //helper method checks if shape is on the border
 bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
 {
-	cv::Rect shape = cv::boundingRect(contour);
-
-	bool touchesBorder = false;
+	Rect shape = boundingRect(contour);
 
 	int xMin, xMax, yMin, yMax;
 
@@ -92,10 +90,10 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 	int shapeEndY = shape.y + shape.height - 1;
 	if (shape.x <= xMin || shape.y <= yMin || shapeEndX >= xMax || shapeEndY >= yMax)
 	{
-		touchesBorder = true;
+		return true;
 	}
 
-	return touchesBorder;
+	return false;
 }
 
 void RecognizeERDiagram::eraseParentContour()
