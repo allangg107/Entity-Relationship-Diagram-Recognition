@@ -5,6 +5,7 @@
 // Assumptions: 
 //	Image used is a valid image ressembling an ER diagram
 //	None of the objects drawn are touching the border of the image
+//	Objects must be closed (i.e. a square cannot have any gaps between its sides)
 // Authors: Allan Genari Gaarden, Tommy Ni, Joshua Medvinsky
 
 #include "RecognizeERDiagram.h"
@@ -40,14 +41,15 @@ void RecognizeERDiagram::recognizeDiagram()
 // ------------------------------------ detectShapes --------------------------------------
 
 // purpose: populate vector types (except weak types)
-// preconditions: 
-// postconditions: 
+// preconditions: contours vector has been populated 
+// postconditions: populates all vector types, except weak types
 
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::detectShapes() 
 {
 	vector<Point> approx;
 
+	// goes through every contour
 	for (size_t i = 0; i < contours.size(); i++) 
 	{
 		// checks if contour is touching border
@@ -56,30 +58,26 @@ void RecognizeERDiagram::detectShapes()
 			approxPolyDP(Mat(contours[i]), approx,
 				arcLength(Mat(contours[i]), true) * 0.02, true);
 
-			//Detect difference between square and rectangle
+			// distinguishes between square and rectangle
 			if (approx.size() == 4 &&
-				fabs(contourArea(Mat(approx))) > 1000 &&
+				fabs(contourArea(Mat(approx))) > 500 &&
 				isContourConvex(Mat(approx)))
 			{
 
 				Rect r = boundingRect(contours[i]);
 				double ratio = abs(1 - (double)r.width / r.height);
-				if (ratio <= 0.2) // if square
+				if (ratio <= 0.2) // if sides are mostly similar in length, it is a square
 				{
-					/*bool weak = checkIfWeak(i);
-					if (weak) weakRelationships.push_back(approx);*/
 					relationships.push_back(approx);
 				}
-				else // otherwise rectangle
+				else // otherwise it is a rectangle
 				{
-					/*bool weak = checkIfWeak(i);
-					if (weak) weakEntities.push_back(approx);*/
 					entities.push_back(approx);
 				}
 			}
 			else if (approx.size() > 6) // if greater than 6 vertices, it is a circle
 			{
-				if(fabs(contourArea(Mat(approx))) > 1000) attributes.push_back(approx);
+				if(fabs(contourArea(Mat(approx))) > 500) attributes.push_back(approx);
 			}
 		}
 		else 
@@ -99,7 +97,13 @@ bool RecognizeERDiagram::checkIfWeak(int contourIndex)
 }
 */
 
-//helper method checks if shape is on the border
+// ------------------------------------ contourTouchesBorder --------------------------------------
+
+// purpose: helper method checks if contour touches the border
+// preconditions: using intended contour, and image size is the image's size
+// postconditions: returns true or false based on if the contour is touching the border
+
+// --------------------------------------------------------------------------------------
 bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
 {
 	Rect shape = boundingRect(contour);
@@ -111,9 +115,9 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 	xMax = imageSize.width - 1;
 	yMax = imageSize.height - 1;
 
-	//checks if x or y is at the border
 	int shapeEndX = shape.x + shape.width - 1;
 	int shapeEndY = shape.y + shape.height - 1;
+	// if the min or max coordinates of the contour are outside the range of the image, returns true
 	if (shape.x <= xMin || shape.y <= yMin || shapeEndX >= xMax || shapeEndY >= yMax)
 	{
 		return true;
@@ -122,10 +126,19 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 	return false;
 }
 
+// ------------------------------------ eraseParentContour --------------------------------------
+
+// purpose: to get rid of the outer contour, if there is one
+// preconditions: attributes vector has been populated
+// postconditions: removes the outer contour from the vector
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::eraseParentContour()
 {
 	for (size_t i = 0; i < attributes.size(); i++)
 	{
+		// given an ER diagram, the outer contour, if it exists, is almost guaranteed to be recognized as
+		//	an attribute. this outer contour is removed based on a reasonable size requirement
 		if (contourArea(attributes[i]) > 20000)
 		{
 			attributes.erase(attributes.begin() + i);
@@ -133,10 +146,18 @@ void RecognizeERDiagram::eraseParentContour()
 	}
 }
 
+// ------------------------------------ determineWeakType --------------------------------------
+
+// purpose: seperates the weak from the strong of a given type
+// preconditions: pointer to the vector containing the type to seperate, and the pointer to the vector
+// //	the weak type will be stored in
+// postconditions: all strong types will be left in type and all the weak types found in type will be removed
+//	and stored in the weakType vector
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<vector<Point>>& weakType)
 {
-	// vector<vector<Point>> currentWeakType;
-
+	// compares each contour against all other contours to see if it is nested
 	for (int i = 0; i < type.size(); i++)
 	{
 		for (int j = 0; j < type.size(); j++)
@@ -163,6 +184,13 @@ void RecognizeERDiagram::determineWeakType(vector<vector<Point>>& type, vector<v
 	}
 }
 
+// ------------------------------------ isNested --------------------------------------
+
+// purpose: determines if contour1 is inside contour2
+// preconditions: contour1 and contour 2 are valid contours
+// postconditions: returns true if contour1 is inside contour2, false if not
+
+// --------------------------------------------------------------------------------------
 bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Point>& contour2)
 {
 	// determine upperLeft and lowerRight points for both contours
