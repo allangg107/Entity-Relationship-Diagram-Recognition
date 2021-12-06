@@ -36,8 +36,10 @@ void testCase(Test test, bool draw)
 	cout << "Entities          : " << rec->getNumEntities() << " : " << test.expectedEntities << endl;
 	cout << "Relationships     : " << rec->getNumRelationships() << " : " << test.expectedRelationships << endl;
 	cout << "Weak Entities     : " << rec->getNumWeakEntities() << " : " << test.expectedWeakEntities << endl;
-	cout << "Weak Relationships: " << rec->getNumWeakRelationships() << " : " << test.expectedWeakRelationships << endl;
-	cout << "Multivalued Attributes: " << rec->getNumMultivaluedAttributes() << " : " << test.expectedMultivaluedAttributes << endl;
+	cout << "Weak Relationships: " << rec->getNumWeakRelationships() << " : " << 
+		test.expectedWeakRelationships << endl;
+	cout << "Multivalued Attributes: " << rec->getNumMultivaluedAttributes() << " : " << 
+		test.expectedMultivaluedAttributes << endl;
 
 	if (draw)
 	{
