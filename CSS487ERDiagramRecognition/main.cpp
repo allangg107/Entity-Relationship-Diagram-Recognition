@@ -1,5 +1,13 @@
+// main.cpp
+// Purpose: driver to test RecognizeERDiagram class
+// Functionality: tests the RecognizeERDiagram class with various inputs and gives the corresponding outputs
+// Assumptions: 
+//	Each test image being used is in the directory
+// Authors: Allan Genari Gaarden, Tommy Ni, Joshua Medvinsky
+
 #include "RecognizeERDiagram.h"
 
+// test structure for ease of adding tests
 struct Test
 {
 	string imageName;
@@ -11,16 +19,17 @@ struct Test
 	int expectedMultivaluedAttributes;
 };
 
+// ------------------------------------ testCase --------------------------------------
+
+// purpose: test a given case
+// preconditions: test is using valid image and draw is true or false depending on if user wants drawing
+// postconditions: outputs the actual vs expected numbers of each type recognized in the image
+//	and outputs resulting images if applicable
+
+// --------------------------------------------------------------------------------------
 void testCase(Test test, bool draw)
 {
 	RecognizeERDiagram* rec = new RecognizeERDiagram(test.imageName);
-
-	if (draw)
-	{
-		rec->drawOriginalImage();
-		rec->drawRectForShapes();
-		rec->drawColorCodedContours();
-	}
 
 	cout << "\nActual vs Expected" << endl;
 	cout << "Attributes        : " << rec->getNumAttributes() << " : " << test.expectedAttributes << endl;
@@ -30,10 +39,24 @@ void testCase(Test test, bool draw)
 	cout << "Weak Relationships: " << rec->getNumWeakRelationships() << " : " << test.expectedWeakRelationships << endl;
 	cout << "Multivalued Attributes: " << rec->getNumMultivaluedAttributes() << " : " << test.expectedMultivaluedAttributes << endl;
 
-	waitKey(0);
-	destroyAllWindows();
+	if (draw)
+	{
+		rec->drawOriginalImage();
+		rec->drawRectForShapes();
+		rec->drawColorCodedContours();
+
+		waitKey(0);
+		destroyAllWindows();
+	}
 }
 
+// ------------------------------------ main --------------------------------------
+
+// purpose: to run all tests
+// preconditions: the tests that are added in main must be in the directory
+// postconditions: gives the corresponding outputs for each test
+
+// --------------------------------------------------------------------------------------
 int main()
 {
 	bool drawTests = true;
