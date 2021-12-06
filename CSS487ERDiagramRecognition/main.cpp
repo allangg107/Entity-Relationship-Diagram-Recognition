@@ -64,11 +64,11 @@ int main()
 
 	testCases.push_back(Test{ "paintTest8.png", -1, -1, -1, -1, -1, -1 });
 
-
 	/*
 	add more test cases here
 	*/
 
+	// runs each test
 	for (int i = 0; i < testCases.size(); i++)
 	{
 		testCase(testCases[i], drawTests);
