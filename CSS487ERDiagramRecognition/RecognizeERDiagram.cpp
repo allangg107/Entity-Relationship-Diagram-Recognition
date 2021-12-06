@@ -36,6 +36,7 @@ void RecognizeERDiagram::recognizeDiagram()
 	// distinguishes weak types 
 	determineWeakType(entities, weakEntities);
 	determineWeakType(relationships, weakRelationships);
+	determineWeakType(attributes, weakAttributes);
 }
 
 // ------------------------------------ detectShapes --------------------------------------
@@ -199,13 +200,15 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 	Point upperLeft2 = contour2[0];
 	Point lowerRight2 = contour2[0];
 
-	for (int i = 0; i < contour1.size(); i++) 
+	for (int i = 0; i < contour1.size(); i++)
 	{
 		if (contour1[i].x < upperLeft1.x) upperLeft1.x = contour1[i].x;
 		if (contour1[i].y < upperLeft1.y) upperLeft1.y = contour1[i].y;
 		if (contour1[i].x > lowerRight1.x) lowerRight1.x = contour1[i].x;
 		if (contour1[i].y > lowerRight1.y) lowerRight1.y = contour1[i].y;
-
+	}
+	for(int i = 0; i < contour2.size(); i++)
+	{
 		if (contour2[i].x < upperLeft2.x) upperLeft2.x = contour2[i].x;
 		if (contour2[i].y < upperLeft2.y) upperLeft2.y = contour2[i].y;
 		if (contour2[i].x > lowerRight2.x) lowerRight2.x = contour2[i].x;
@@ -260,11 +263,25 @@ double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point p
 }
 */
 
+// ------------------------------------ drawOriginalImage --------------------------------------
+
+// purpose: display the original, unmodified input image
+// preconditions: valid input image has been given
+// postconditions: displays the original image
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawOriginalImage()
 {
 	imshow("Original Image", image);
 }
 
+// ------------------------------------ drawAllContours --------------------------------------
+
+// purpose: display the image showing all the contours
+// preconditions: valid input image has been given and contours has been populated
+// postconditions: dispays the image showing all the contours with one color
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawAllContours()
 {
 	Mat imageCopy = image.clone();
@@ -272,6 +289,13 @@ void RecognizeERDiagram::drawAllContours()
 	imshow("All Contours", imageCopy);
 }
 
+// ------------------------------------ drawColorCodedContours --------------------------------------
+
+// purpose: displays all the contours color coded based on the type
+// preconditions: valid input image has been given and all contour types have been populated
+// postconditions: displays all the contours color coded based on the type
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawColorCodedContours()
 {
 	Mat imageCopy(image.size(), image.type());
@@ -281,9 +305,17 @@ void RecognizeERDiagram::drawColorCodedContours()
 	drawContours(imageCopy, attributes, -1, Scalar(0, 0, 255), 2);
 	drawContours(imageCopy, weakEntities, -1, Scalar(200, 150, 150), 2);
 	drawContours(imageCopy, weakRelationships, -1, Scalar(150, 200, 150), 2);
+	drawContours(imageCopy, weakAttributes, -1, Scalar(150, 150, 200), 2);
 	imshow("Color Coded Contours", imageCopy);
 }
 
+// ------------------------------------ labelShape --------------------------------------
+
+// purpose: to label a shape on the given image
+// preconditions: valid image, using 
+// postconditions: 
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLeft) 
 {
 	upperLeft.y -= 3;
@@ -307,10 +339,15 @@ void RecognizeERDiagram::labelShape(Mat& imageCopy, Scalar color, Point upperLef
 	{
 		putText(imageCopy, "Weak Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
-	//if green, then weak relationship type
+	//if weird green, then weak relationship type
 	if (color == Scalar(150, 200, 150))
 	{
 		putText(imageCopy, "Weak Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+	}
+	//if weird red, then weak attribute type
+	if (color == Scalar(150, 150, 200))
+	{
+		putText(imageCopy, "Multivalued Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 	}
 }
 
@@ -322,6 +359,7 @@ void RecognizeERDiagram::drawRectForShapes()
 	if (!attributes.empty()) drawRectsForSpecificShape(attributes, imageCopy, Scalar(0, 0, 255));
 	if (!weakEntities.empty()) drawRectsForSpecificShape(weakEntities, imageCopy, Scalar(200, 150, 150));
 	if (!weakRelationships.empty()) drawRectsForSpecificShape(weakRelationships, imageCopy, Scalar(150, 200, 150));
+	if (!weakAttributes.empty()) drawRectsForSpecificShape(weakAttributes, imageCopy, Scalar(150, 150, 200));
 	imshow("Color Coded Shapes", imageCopy);
 }
 

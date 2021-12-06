@@ -36,6 +36,15 @@ private:
 	vector<vector<Point>> attributes;
 	vector<vector<Point>> weakRelationships;
 	vector<vector<Point>> weakEntities;
+	vector<vector<Point>> weakAttributes;
+
+	Scalar contourColor = (120, 0, 120);
+	Scalar entityColor = (255, 0, 0);
+	Scalar relationshipColor = (0, 255, 0);
+	Scalar attributeColor = (0, 0, 255);
+	Scalar weakEntityColor = (200, 150, 150);
+	Scalar weakRelationshipColor = (150, 200, 150);
+	Scalar weakAttributeColor = (150, 150, 200);
 
 	void recognizeDiagram();
 	void detectShapes();
