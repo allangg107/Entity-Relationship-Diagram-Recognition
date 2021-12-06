@@ -1,23 +1,49 @@
+// RecognizeERDiagram.cpp
+// Purpose: recognize and label different entity types in a given hand drawn ER diagram
+// Functionality: given a hand drawn ER diagram image, produces an image that boxes
+//	and labels each entity type in the diagram appropriately
+// Assumptions: 
+//	Image used is a valid image ressembling an ER diagram
+//	None of the objects drawn are touching the border of the image
+// Authors: Allan Genari Gaarden, Tommy Ni, Joshua Medvinsky
+
 #include "RecognizeERDiagram.h"
 
+// ------------------------------------ recognizeDiagram --------------------------------------
+
+// purpose: identify each object in the image
+// preconditions: the image has already been defined
+// postconditions: every object's contour in the image is stored in the appropriate type vector
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::recognizeDiagram()
 {
+	// prepares image to find all contours
 	Mat grayImage;
 	cvtColor(image, grayImage, COLOR_BGR2GRAY);
-
 	Mat thresh;
 	threshold(grayImage, thresh, 150, 255, THRESH_BINARY);
 
 	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
+	// populates type vectors (except weak types)
 	detectShapes();
 
+	// gets rid of the unecessary outer contour
 	eraseParentContour();
 
+	// distinguishes weak types 
 	determineWeakType(entities, weakEntities);
 	determineWeakType(relationships, weakRelationships);
 }
 
+// ------------------------------------ detectShapes --------------------------------------
+
+// purpose: populate vector types (except weak types)
+// preconditions: 
+// postconditions: 
+
+// --------------------------------------------------------------------------------------
 void RecognizeERDiagram::detectShapes() 
 {
 	vector<Point> approx;
@@ -53,7 +79,7 @@ void RecognizeERDiagram::detectShapes()
 			}
 			else if (approx.size() > 6) // if greater than 6 vertices, it is a circle
 			{
-				attributes.push_back(approx);
+				if(fabs(contourArea(Mat(approx))) > 1000) attributes.push_back(approx);
 			}
 		}
 		else 
