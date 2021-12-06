@@ -83,7 +83,7 @@ void RecognizeERDiagram::detectShapes()
 		}
 		else 
 		{
-			//delete contour if contour touches border
+			//delete contour from contours vector if  current contour touches border
 			contours.erase(contours.begin() + i);
 		}
 	}
@@ -99,11 +99,12 @@ void RecognizeERDiagram::detectShapes()
 bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, const Size& imageSize)
 {
 	Rect shape = boundingRect(contour);
-
+	// created ints to represent the mins and maxes for x and y respectively
 	int xMin, xMax, yMin, yMax;
-
+	//set x and y min to 0
 	xMin = 0;
 	yMin = 0;
+	//set x to the images width-1, and y to image height-1
 	xMax = imageSize.width - 1;
 	yMax = imageSize.height - 1;
 
@@ -114,7 +115,7 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 	{
 		return true;
 	}
-
+	//returns false if coordinates of the contour are in range
 	return false;
 }
 
