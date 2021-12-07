@@ -226,6 +226,8 @@ bool RecognizeERDiagram::isNested(const vector<Point>& contour1, const vector<Po
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawOriginalImage()
 {
+	namedWindow("Original Image", WINDOW_NORMAL);
+	resizeWindow("Original Image", image.cols, image.rows);
 	imshow("Original Image", image);
 }
 
@@ -241,6 +243,7 @@ void RecognizeERDiagram::drawAllContours()
 	Mat imageCopy = image.clone();
 	drawContours(imageCopy, contours, -1, contourColor, 2);
 	imshow("All Contours", imageCopy);
+	resizeWindow("All Contours", imageCopy.cols, imageCopy.rows);
 }
 
 // ------------------------------------ drawColorCodedContours --------------------------------------
@@ -260,7 +263,9 @@ void RecognizeERDiagram::drawColorCodedContours()
 	drawContours(imageCopy, weakEntities, -1, weakEntityColor, 2);
 	drawContours(imageCopy, weakRelationships, -1, weakRelationshipColor, 2);
 	drawContours(imageCopy, weakAttributes, -1, weakAttributeColor, 2);
+	namedWindow("Color Coded Contours", WINDOW_NORMAL);
 	imshow("Color Coded Contours", imageCopy);
+	resizeWindow("Color Coded Contours", imageCopy.cols, imageCopy.rows);
 }
 
 // ------------------------------------ drawRectForShapes --------------------------------------
@@ -280,6 +285,8 @@ void RecognizeERDiagram::drawRectForShapes()
 	if (!weakRelationships.empty()) drawRectsForSpecificShape(weakRelationships, imageCopy, 
 		weakRelationshipColor);
 	if (!weakAttributes.empty()) drawRectsForSpecificShape(weakAttributes, imageCopy, weakAttributeColor);
+	namedWindow("Color Coded Shapes", WINDOW_NORMAL);
+	resizeWindow("Color Coded Shapes", imageCopy.cols, imageCopy.rows);
 	imshow("Color Coded Shapes", imageCopy);
 }
 
@@ -316,7 +323,7 @@ void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> current
 		upperLeft.y -= 10;
 		lowerRight.x += 10;
 		lowerRight.y += 10;
-		rectangle(imageCopy, upperLeft, lowerRight, color, 1);
+		rectangle(imageCopy, upperLeft, lowerRight, color, 2);
 		labelShape(imageCopy, color, upperLeft);
 	}
 }
