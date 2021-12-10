@@ -45,7 +45,7 @@ void testCase(Test test, bool draw)
 	{
 		rec->drawOriginalImage();
 		rec->drawRectForShapes();
-		rec->drawColorCodedContours();
+		//rec->drawColorCodedContours();
 
 		waitKey(0);
 		destroyAllWindows();
@@ -64,7 +64,13 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	testCases.push_back(Test{ "paintTest7.png", -1, -1, -1, -1, -1, -1 });
+	//testCases.push_back(Test{ "paintTestSimple1.png", -1, -1, -1, -1, -1, -1 });
+	//testCases.push_back(Test{ "paintTestSimple2.png", -1, -1, -1, -1, -1, -1 });
+	//testCases.push_back(Test{ "paintTestIntermediate1.png", -1, -1, -1, -1, -1, -1 });
+	//testCases.push_back(Test{ "paintTestIntermediate2.png", -1, -1, -1, -1, -1, -1 });
+	testCases.push_back(Test{ "paintTestIntermediate3.png", -1, -1, -1, -1, -1, -1 });
+	testCases.push_back(Test{ "paintTestIntermediate4.png", -1, -1, -1, -1, -1, -1 });
+	//testCases.push_back(Test{ "paintTestAdvance1.png", -1, -1, -1, -1, -1, -1 });
 
 	/*
 	add more test cases here
