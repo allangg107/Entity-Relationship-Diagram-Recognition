@@ -19,11 +19,13 @@
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::recognizeDiagram()
 {
+	int minThreshold = 150;
+	int maxThreshold = 255;
 	// prepares image to find all contours
 	Mat grayImage;
 	cvtColor(image, grayImage, COLOR_BGR2GRAY);
 	Mat thresh;
-	threshold(grayImage, thresh, 150, 255, THRESH_BINARY);
+	threshold(grayImage, thresh, minThreshold, maxThreshold, THRESH_BINARY);
 
 	findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
@@ -49,7 +51,9 @@ void RecognizeERDiagram::recognizeDiagram()
 void RecognizeERDiagram::detectShapes() 
 {
 	vector<Point> approx;
-
+	int thresholdAreaForRect = 500;
+	int thresholdAreaForCircle = 500;
+	double thresholdRatioForSqar = 0.2;
 	// goes through every contour
 	for (size_t i = 0; i < contours.size(); i++) 
 	{
@@ -61,13 +65,13 @@ void RecognizeERDiagram::detectShapes()
 
 			// distinguishes between square and rectangle
 			if (approx.size() == 4 &&
-				fabs(contourArea(Mat(approx))) > 500 &&
+				fabs(contourArea(Mat(approx))) > thresholdAreaForRect &&
 				isContourConvex(Mat(approx)))
 			{
 
 				Rect r = boundingRect(contours[i]);
 				double ratio = abs(1 - (double)r.width / r.height);
-				if (ratio <= 0.2) // if sides are mostly similar in length, it is a square
+				if (ratio <= thresholdRatioForSqar) // if sides are mostly similar in length, it is a square
 				{
 					relationships.push_back(approx);
 				}
@@ -78,7 +82,7 @@ void RecognizeERDiagram::detectShapes()
 			}
 			else if (approx.size() > 6) // if greater than 6 vertices, it is a circle
 			{
-				if(fabs(contourArea(Mat(approx))) > 500) attributes.push_back(approx);
+				if(fabs(contourArea(Mat(approx))) > thresholdAreaForCircle) attributes.push_back(approx);
 			}
 		}
 		else 
@@ -128,11 +132,12 @@ bool RecognizeERDiagram::contourTouchesBorder(const vector<Point>& contour, cons
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::eraseParentContour()
 {
+	int thresholdForOutsideContour = 20000;
 	for (size_t i = 0; i < attributes.size(); i++)
 	{
 		// given an ER diagram, the outer contour, if it exists, is almost guaranteed to be recognized 
 		//	as an attribute. this outer contour is removed based on a reasonable size requirement
-		if (contourArea(attributes[i]) > 20000)
+		if (contourArea(attributes[i]) > thresholdForOutsideContour)
 		{
 			attributes.erase(attributes.begin() + i);
 		}
@@ -255,14 +260,16 @@ void RecognizeERDiagram::drawAllContours()
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawColorCodedContours()
 {
+	int thickness = 2;
+	int contourid = -1;
 	Mat imageCopy(image.size(), image.type());
-	drawContours(imageCopy, contours, -1, contourColor, 2);
-	drawContours(imageCopy, entities, -1, entityColor, 2);
-	drawContours(imageCopy, relationships, -1, relationshipColor, 2);
-	drawContours(imageCopy, attributes, -1, attributeColor, 2);
-	drawContours(imageCopy, weakEntities, -1, weakEntityColor, 2);
-	drawContours(imageCopy, weakRelationships, -1, weakRelationshipColor, 2);
-	drawContours(imageCopy, weakAttributes, -1, weakAttributeColor, 2);
+	drawContours(imageCopy, contours, contourid, contourColor, thickness);
+	drawContours(imageCopy, entities, contourid, entityColor, thickness);
+	drawContours(imageCopy, relationships, contourid, relationshipColor, thickness);
+	drawContours(imageCopy, attributes, contourid, attributeColor, thickness);
+	drawContours(imageCopy, weakEntities, contourid, weakEntityColor, thickness);
+	drawContours(imageCopy, weakRelationships, contourid, weakRelationshipColor, thickness);
+	drawContours(imageCopy, weakAttributes, contourid, weakAttributeColor, thickness);
 	namedWindow("Color Coded Contours", WINDOW_NORMAL);
 	imshow("Color Coded Contours", imageCopy);
 	resizeWindow("Color Coded Contours", imageCopy.cols, imageCopy.rows);
@@ -299,11 +306,11 @@ void RecognizeERDiagram::drawRectForShapes()
 
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> currentShape, Mat& 
-	imageCopy, const Scalar color) 
+	imageCopy, const Scalar color)
 {
 	Point upperLeft = currentShape[0][0];
 	Point lowerRight = currentShape[0][0];
-	
+	int boundingBoxOffByPixel = 10;
 	// goes through every shape
 	for (int i = 0; i < currentShape.size(); i++) 
 	{
@@ -319,10 +326,10 @@ void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> current
 		}
 		
 		// extend box to envelop the shape
-		upperLeft.x -= 10;
-		upperLeft.y -= 10;
-		lowerRight.x += 10;
-		lowerRight.y += 10;
+		upperLeft.x -= boundingBoxOffByPixel;
+		upperLeft.y -= boundingBoxOffByPixel;
+		lowerRight.x += boundingBoxOffByPixel;
+		lowerRight.y += boundingBoxOffByPixel;
 		rectangle(imageCopy, upperLeft, lowerRight, color, 2);
 		labelShape(imageCopy, color, upperLeft);
 	}
@@ -338,35 +345,37 @@ void RecognizeERDiagram::drawRectsForSpecificShape(vector<vector<Point>> current
 void RecognizeERDiagram::labelShape(Mat& imageCopy, const Scalar color, Point upperLeft)
 {
 	upperLeft.y -= 3;
+	int thickness = 1;
+	double fontSize = 0.5;
 	//if entity color, then entity type
 	if (color == entityColor)
 	{
-		putText(imageCopy, "Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+		putText(imageCopy, "Entity", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 	//if relationship color, then relationship type
 	if (color == relationshipColor)
 	{
-		putText(imageCopy, "Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.4, color, 1);
+		putText(imageCopy, "Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 	//if attribute color, then attribute type
 	if (color == attributeColor)
 	{
-		putText(imageCopy, "Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+		putText(imageCopy, "Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 	//if weak entity color, then weak entity type
 	if (color == weakEntityColor)
 	{
-		putText(imageCopy, "Weak Entity", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+		putText(imageCopy, "Weak Entity", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 	//if weak relationship color, then weak relationship type
 	if (color == weakRelationshipColor)
 	{
-		putText(imageCopy, "Weak Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+		putText(imageCopy, "Weak Relationship", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 	//if weak attribute color, then weak attribute type
 	if (color == weakAttributeColor)
 	{
-		putText(imageCopy, "Multivalued Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+		putText(imageCopy, "Multivalued Attribute", upperLeft, FONT_HERSHEY_SIMPLEX, fontSize, color, thickness);
 	}
 }
 
