@@ -46,6 +46,9 @@ void RecognizeERDiagram::recognizeDiagram()
 // purpose: populate vector types (except weak types)
 // preconditions: contours vector has been populated 
 // postconditions: populates all vector types, except weak types
+// This method structure was inspired by http://www.calumk.com/old_posts_archive/0008//detecting-simple-shapes-in-an-image/
+// We made edits to the code to not check for angles of the shapes
+// as we only deal with rectangles/squares.
 
 // --------------------------------------------------------------------------------------
 void RecognizeERDiagram::detectShapes() 
@@ -481,6 +484,17 @@ int RecognizeERDiagram::getNumMultivaluedAttributes()
 	return (int)weakAttributes.size();
 }
 
+
+// ------------------------------------ checkIfWeak --------------------------------------
+
+// purpose: to check if the countour was a weak (has a shape inside of it)
+// preconditions: contourIndex isn't garbage data
+// postconditions: returns true if the shape either had a parent or a child
+//				   false otherwise
+// 
+// Not currently used in our program as we had a hard time using the hierarchy vector
+// that was produced from findCountour(). Sometimes a shape didn't have a child
+// but the method would return saying it did.
 /*
 bool RecognizeERDiagram::checkIfWeak(int contourIndex)
 {
@@ -490,6 +504,17 @@ bool RecognizeERDiagram::checkIfWeak(int contourIndex)
 }
 */
 
+// ------------------------------------ angle --------------------------------------
+
+// purpose: to check the angle of a contour/shape in the image
+// preconditions: all points wasn't garbage data
+// postconditions: returns the angle of the shape
+// 
+// This method was taken from https://docs.opencv.org/4.x/db/d00/samples_2cpp_2squares_8cpp-example.html
+// 
+// Not currently used in our program as we do not care about the angle of our shapes/contours.
+// But this method will be used if our next feature of the program is to determine non ER diagram
+// symbols.
 /*
 double RecognizeERDiagram::angle(const Point pt1, const Point pt2, const Point pt0)
 {
