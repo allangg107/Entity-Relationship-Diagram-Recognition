@@ -64,13 +64,13 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	//testCases.push_back(Test{ "paintTestSimple1.png", -1, -1, -1, -1, -1, -1 });
-	//testCases.push_back(Test{ "paintTestSimple2.png", -1, -1, -1, -1, -1, -1 });
-	//testCases.push_back(Test{ "paintTestIntermediate1.png", -1, -1, -1, -1, -1, -1 });
-	//testCases.push_back(Test{ "paintTestIntermediate2.png", -1, -1, -1, -1, -1, -1 });
-	testCases.push_back(Test{ "paintTestIntermediate3.png", -1, -1, -1, -1, -1, -1 });
-	testCases.push_back(Test{ "paintTestIntermediate4.png", -1, -1, -1, -1, -1, -1 });
-	//testCases.push_back(Test{ "paintTestAdvance1.png", -1, -1, -1, -1, -1, -1 });
+	testCases.push_back(Test{ "paintTestSimple1.png", 0, 2, 1, 0, 0, 0 });
+	testCases.push_back(Test{ "paintTestSimple2.png", 4, 2, 1, 0, 0, 1 });
+	testCases.push_back(Test{ "paintTestIntermediate1.png", 3, 2, 1, 1, 1, 1 });
+	testCases.push_back(Test{ "paintTestIntermediate2.png", 3, 2, 1, 1, 1, 0 });
+	testCases.push_back(Test{ "paintTestIntermediate3.png", 5, 2, 1, 0, 0, 0 });
+	testCases.push_back(Test{ "paintTestIntermediate4.png", 5, 1, 0, 1, 1, 0 });
+	testCases.push_back(Test{ "paintTestAdvance1.png", 13, 3, 3, 1, 1, 0 });
 
 	/*
 	add more test cases here
