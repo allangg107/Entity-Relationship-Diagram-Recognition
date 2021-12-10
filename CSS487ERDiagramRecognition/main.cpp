@@ -64,7 +64,7 @@ int main()
 	bool drawTests = true;
 	vector<Test> testCases;
 
-	testCases.push_back(Test{ "paintTest4.png", -1, -1, -1, -1, -1, -1 });
+	testCases.push_back(Test{ "paintTest7.png", -1, -1, -1, -1, -1, -1 });
 
 	/*
 	add more test cases here
