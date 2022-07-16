@@ -2,7 +2,7 @@
 This was a final project for a computer vision course our group took.
 Below is the write up of our project.
 
-# What We Tried to Accomplish:
+# What We Wanted to Accomplish:
 Our main project was for Entity Relationship (ER) Diagram recognition. 
 The goal of our program was to recognize and identify the various symbols in a hand drawn ER diagram. 
 The program would then output a copy of the diagram that is appropriately labeled.
