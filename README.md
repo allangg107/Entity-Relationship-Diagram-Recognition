@@ -1,7 +1,7 @@
 # Entity Relationship Diagram Recognition Project
 This was a final project for a computer vision course our group took.
 
-Watch a short overview of our project here: https://www.youtube.com/watch?v=0yIrcEWffWM
+Watch a short project overview here: https://www.youtube.com/watch?v=0yIrcEWffWM
 
 Below is the write up of our project.
 
